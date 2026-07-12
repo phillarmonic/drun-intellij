@@ -7,16 +7,16 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.lsp.api.LspServerSupportProvider
-import com.intellij.platform.lsp.api.ProjectWideLspServerDescriptor
+import com.intellij.platform.lsp.api.LspIntegrationProvider
+import com.intellij.platform.lsp.api.ProjectWideLspClientDescriptor
 import com.phillarmonic.drun.settings.DrunSettingsResolver
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isExecutable
 import kotlin.io.path.isRegularFile
 
-class DrunLspServerSupportProvider : LspServerSupportProvider {
-    override fun fileOpened(project: Project, file: VirtualFile, serverStarter: LspServerSupportProvider.LspServerStarter) {
+class DrunLspServerSupportProvider : LspIntegrationProvider {
+    override fun fileOpened(project: Project, file: VirtualFile, clientStarter: LspIntegrationProvider.LspClientStarter) {
         if (file.extension != "drun") return
         val settings = DrunSettingsResolver.resolve(project)
         if (!settings.enabled) return
@@ -29,7 +29,7 @@ class DrunLspServerSupportProvider : LspServerSupportProvider {
                 }).notify(project)
             return
         }
-        serverStarter.ensureServerStarted(DrunLspServerDescriptor(project, settings.executable))
+        clientStarter.ensureClientStarted(DrunLspClientDescriptor(project, settings.executable))
     }
 
     companion object {
@@ -48,8 +48,8 @@ class DrunLspServerSupportProvider : LspServerSupportProvider {
     }
 }
 
-internal class DrunLspServerDescriptor(project: Project, private val executable: String) :
-    ProjectWideLspServerDescriptor(project, "Drun") {
+internal class DrunLspClientDescriptor(project: Project, private val executable: String) :
+    ProjectWideLspClientDescriptor(project, "Drun") {
     override fun isSupportedFile(file: VirtualFile) = file.extension == "drun"
     override fun createCommandLine() = GeneralCommandLine(executable, "cmd:lsp").withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
 }

@@ -6,6 +6,6 @@
         <projectConfigurable id="com.phillarmonic.drun.settings.project" displayName="Drun" parentId="language" instance="com.phillarmonic.drun.settings.DrunProjectConfigurable"/>
     </extensions>
     <extensions defaultExtensionNs="com.intellij.platform.lsp">
-        <serverSupportProvider implementation="com.phillarmonic.drun.lsp.DrunLspServerSupportProvider"/>
+        <integrationProvider implementation="com.phillarmonic.drun.lsp.DrunLspServerSupportProvider"/>
     </extensions>
 </idea-plugin>
