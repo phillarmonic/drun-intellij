@@ -52,7 +52,7 @@ tasks {
         password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
     }
 
-    publishPlugin { token.set(providers.environmentVariable("PUBLISH_TOKEN")) }
+    publishPlugin { token.set(providers.environmentVariable("JB_PUA_TOKEN")) }
 
     withType<VerifyPluginTask> { dependsOn(test) }
 }
