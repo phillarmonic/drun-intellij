@@ -19,6 +19,7 @@ object DrunTokenTypes {
     @JvmField val VARIABLE = DrunTokenType("VARIABLE")
     @JvmField val ANNOTATION = DrunTokenType("ANNOTATION")
     @JvmField val DEFINITION = DrunTokenType("DEFINITION")
+    @JvmField val PROPERTY = DrunTokenType("PROPERTY")
     @JvmField val OPERATOR = DrunTokenType("OPERATOR")
     @JvmField val LBRACE = DrunTokenType("LBRACE")
     @JvmField val RBRACE = DrunTokenType("RBRACE")

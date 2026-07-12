@@ -22,6 +22,7 @@ class DrunSyntaxHighlighter : SyntaxHighlighterBase() {
         DrunTokenTypes.VARIABLE -> DrunTextAttributes.VARIABLE
         DrunTokenTypes.ANNOTATION -> DrunTextAttributes.ANNOTATION
         DrunTokenTypes.DEFINITION -> DrunTextAttributes.DEFINITION
+        DrunTokenTypes.PROPERTY -> DrunTextAttributes.PROPERTY
         DrunTokenTypes.OPERATOR -> DrunTextAttributes.OPERATOR
         DrunTokenTypes.LBRACE, DrunTokenTypes.RBRACE, DrunTokenTypes.LBRACKET, DrunTokenTypes.RBRACKET,
         DrunTokenTypes.LPAREN, DrunTokenTypes.RPAREN,

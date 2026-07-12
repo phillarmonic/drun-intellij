@@ -31,6 +31,86 @@ task "deploy":
         assertHas(tokens, DrunTokenTypes.DEFINITION, "next")
     }
 
+    @Test fun `recognizes interpolation variants inside strings`() {
+        val tokens = lex("""info "plain {port}, explicit {${'$'}version}, dotted {service.port}"""")
+        assertHas(tokens, DrunTokenTypes.INTERPOLATION, "{port}")
+        assertHas(tokens, DrunTokenTypes.INTERPOLATION, "{${'$'}version}")
+        assertHas(tokens, DrunTokenTypes.INTERPOLATION, "{service.port}")
+    }
+
+    @Test fun `recognizes variable names in declarations and expressions`() {
+        val tokens = lex("given ${'$'}app_name defaults to \"myapp\"\nset ${'$'}replicas to 3")
+        assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}app_name")
+        assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}replicas")
+    }
+
+    @Test fun `styles word operators as keywords`() {
+        val tokens = lex("for ${'$'}i in range 1 to 3 in parallel:")
+        assertHas(tokens, DrunTokenTypes.KEYWORD, "range")
+        assertHas(tokens, DrunTokenTypes.KEYWORD, "parallel")
+    }
+
+    @Test fun `highlights dependency task references`() {
+        val tokens = lex("""depends on install
+depends on lint and unit_tests
+depends on integration_tests, security_scan
+depends on ["database", "redis"]
+depends on build then smoke_test in parallel
+""")
+        listOf("install", "lint", "unit_tests", "integration_tests", "security_scan", "build", "smoke_test", "\"database\"", "\"redis\"").forEach {
+            assertHas(tokens, DrunTokenTypes.DEFINITION, it)
+        }
+        listOf("on", "and", "then", "in", "parallel").forEach {
+            assertHas(tokens, DrunTokenTypes.KEYWORD, it)
+        }
+    }
+
+    @Test fun `recognizes built in types in parameter declarations`() {
+        val tokens = lex("""accepts ${'$'}items as list
+given ${'$'}name as string
+given ${'$'}config as json
+""")
+        listOf("list", "string", "json").forEach {
+            assertHas(tokens, DrunTokenTypes.TYPE, it)
+        }
+    }
+
+    @Test fun `highlights project configuration properties`() {
+        val tokens = lex("""shell config:
+  darwin:
+    executable: "/bin/zsh"
+    args:
+      - "-l"
+    environment:
+      TERM: xterm-256color
+      TEST_VAR: "hello"
+""")
+        listOf("executable", "TERM", "TEST_VAR").forEach {
+            assertHas(tokens, DrunTokenTypes.PROPERTY, it)
+        }
+        listOf("darwin", "args", "environment").forEach {
+            assertHas(tokens, DrunTokenTypes.CONSTANT, it)
+        }
+    }
+
+    @Test fun `keeps multiline commands in string state`() {
+        val source = """command "docker build \
+  --build-arg ENV={${'$'}environment} \
+  --build-arg VERSION={${'$'}version} \
+  ."
+command "echo 'Building {${'$'}version}'
+go test ./...
+echo 'Done'"
+"""
+        val tokens = lex(source)
+        assertEquals("multiline command must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
+        assertHas(tokens, DrunTokenTypes.INTERPOLATION, "{${'$'}environment}")
+        assertHas(tokens, DrunTokenTypes.INTERPOLATION, "{${'$'}version}")
+        assertTrue("continued command text should remain a string",
+            tokens.any { it.first == DrunTokenTypes.STRING && "go test ./..." in it.second })
+    }
+
     @Test fun `recognizes policies detection and orchestration`() {
         val tokens = lex("git policy:\n  branch is attached\norchestration service is healthy")
         listOf("git", "policy", "orchestration", "service").forEach { word ->

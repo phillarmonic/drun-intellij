@@ -16,7 +16,9 @@ import static com.phillarmonic.drun.lexer.DrunTokenTypes.*;
 %public
 
 %state IN_STRING
+%state IN_SINGLE_STRING
 %state EXPECT_NAME
+%state DEPENDENCY_LIST
 
 WHITE_SPACE=[ \t\f\r\n]+
 IDENT=[A-Za-z_][A-Za-z0-9_.-]*
@@ -40,17 +42,20 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
   "/*"([^*]|\*+[^*/])*\*+"/"          { return BLOCK_COMMENT; }
   "/*"([^*]|\*+[^*/])*                 { return BLOCK_COMMENT; }
   {ANNOTATION}                           { return ANNOTATION; }
+  "depends"                             { yybegin(DEPENDENCY_LIST); return KEYWORD; }
   "task"|"snippet"                     { yybegin(EXPECT_NAME); return KEYWORD; }
   "template"[ \t]+"task"               { yybegin(EXPECT_NAME); return KEYWORD; }
   {DECLARATION}|{CONTROL}                { return KEYWORD; }
-  {WORD_OPERATOR}                        { return OPERATOR; }
+  {WORD_OPERATOR}                        { return KEYWORD; }
   {ACTION}                               { return ACTION; }
   {TYPE}                                 { return TYPE; }
   {DOMAIN}                               { return CONSTANT; }
   {CONSTANT}                             { return CONSTANT; }
   {VARIABLE}                             { return VARIABLE; }
   {NUMBER}                               { return NUMBER; }
+  ("executable"|[A-Z_][A-Z0-9_]*)/[ \t]*":" { return PROPERTY; }
   \"                                    { yybegin(IN_STRING); return STRING; }
+  "'"                                   { yybegin(IN_SINGLE_STRING); return STRING; }
   "=="|"!="|">="|"<="|"&&"|"||"|"="|">"|"<"|"+"|"-"|"*"|"/"|"!" { return OPERATOR; }
   "{"                                   { return LBRACE; }
   "}"                                   { return RBRACE; }
@@ -64,6 +69,18 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
   .                                      { return BAD_CHARACTER; }
 }
 
+<DEPENDENCY_LIST> {
+  [ \t]+                                 { return TokenType.WHITE_SPACE; }
+  "on"|"and"|"then"|"in"|"parallel"|"sequential" { return KEYWORD; }
+  \"([^\"\\]|\\.)*\"                { return DEFINITION; }
+  {IDENT}                                { return DEFINITION; }
+  "["                                   { return LBRACKET; }
+  "]"                                   { return RBRACKET; }
+  ","                                   { return COMMA; }
+  \r?\n                                  { yybegin(YYINITIAL); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
 <EXPECT_NAME> {
   [ \t]+                                 { return TokenType.WHITE_SPACE; }
   \"([^\"\\]|\\.)*\"                { yybegin(YYINITIAL); return DEFINITION; }
@@ -74,9 +91,17 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
 
 <IN_STRING> {
   [^\"\\{]+                            { return STRING; }
+  \\\r?\n                               { return STRING_ESCAPE; }
   \\([\"\\nrtbf]|u[0-9A-Fa-f]{4})      { return STRING_ESCAPE; }
   "{"\$?{IDENT}"}"                     { return INTERPOLATION; }
   \"                                    { yybegin(YYINITIAL); return STRING; }
   "{"                                   { return STRING; }
   \\.                                   { return STRING_ESCAPE; }
+}
+
+<IN_SINGLE_STRING> {
+  [^'\\]+                               { return STRING; }
+  \\\r?\n                               { return STRING_ESCAPE; }
+  \\.                                   { return STRING_ESCAPE; }
+  "'"                                   { yybegin(YYINITIAL); return STRING; }
 }

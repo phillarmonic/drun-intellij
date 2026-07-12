@@ -3,8 +3,6 @@ package com.phillarmonic.drun.settings
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
-import com.intellij.platform.lsp.api.LspServerManager
-import com.phillarmonic.drun.lsp.DrunLspServerSupportProvider
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
@@ -50,7 +48,12 @@ class DrunProjectConfigurable(private val project: Project) : SearchableConfigur
 }
 
 private fun restartServer(project: Project) {
-    LspServerManager.getInstance(project).stopAndRestartIfNeeded(DrunLspServerSupportProvider::class.java)
+    // The implementation class links against JetBrains' optional LSP module. Load it only
+    // when that module is present so syntax support remains usable in Android Studio.
+    runCatching {
+        val restarter = Class.forName("com.phillarmonic.drun.lsp.DrunLspRestarter")
+        restarter.getMethod("restart", Project::class.java).invoke(null, project)
+    }
 }
 
 private class LspEnablementRenderer : javax.swing.DefaultListCellRenderer() {

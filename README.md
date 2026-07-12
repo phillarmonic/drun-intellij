@@ -9,7 +9,7 @@ Native JetBrains editor support for the [Drun](https://github.com/phillarmonic/d
 - Parser-backed diagnostics and task/keyword completion through `xdrun cmd:lsp`
 - Global language-server settings with per-project overrides
 
-The plugin targets JetBrains IDEs 2025.3 and newer that contain the JetBrains LSP module. It does not support Android Studio or IntelliJ Community source builds.
+The plugin targets IntelliJ Platform 2025.3 and newer. Native syntax highlighting and editor support work in Android Studio and other IntelliJ Platform products. The `xdrun` language server activates automatically only in products that contain JetBrains' LSP module; Android Studio currently receives syntax/editor support without diagnostics or completion.
 
 ## Language server
 

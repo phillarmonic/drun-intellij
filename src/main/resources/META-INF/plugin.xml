@@ -3,8 +3,8 @@
     <name>Drun Language Support</name>
     <vendor url="https://github.com/phillarmonic">Phillarmonic Software</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.lsp</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="drun-lsp.xml">com.intellij.modules.lsp</depends>
 
     <resource-bundle>messages.DrunBundle</resource-bundle>
 
@@ -19,14 +19,7 @@
         <lang.foldingBuilder language="Drun" implementationClass="com.phillarmonic.drun.editor.DrunFoldingBuilder"/>
         <langCodeStyleSettingsProvider implementation="com.phillarmonic.drun.editor.DrunLanguageCodeStyleSettingsProvider"/>
         <lineIndentProvider implementation="com.phillarmonic.drun.editor.DrunLineIndentProvider"/>
-        <applicationService serviceImplementation="com.phillarmonic.drun.settings.DrunGlobalSettings"/>
-        <projectService serviceImplementation="com.phillarmonic.drun.settings.DrunProjectSettings"/>
-        <applicationConfigurable id="com.phillarmonic.drun.settings.global" displayName="Drun" parentId="language" instance="com.phillarmonic.drun.settings.DrunGlobalConfigurable"/>
-        <projectConfigurable id="com.phillarmonic.drun.settings.project" displayName="Drun" parentId="language" instance="com.phillarmonic.drun.settings.DrunProjectConfigurable"/>
         <notificationGroup id="Drun Language Server" displayType="BALLOON" isLogByDefault="true"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.intellij.platform.lsp">
-        <serverSupportProvider implementation="com.phillarmonic.drun.lsp.DrunLspServerSupportProvider"/>
-    </extensions>
 </idea-plugin>

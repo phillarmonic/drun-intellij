@@ -39,6 +39,7 @@ task "deploy":
             AttributesDescriptor("Variable", DrunTextAttributes.VARIABLE),
             AttributesDescriptor("Annotation", DrunTextAttributes.ANNOTATION),
             AttributesDescriptor("Definition", DrunTextAttributes.DEFINITION),
+            AttributesDescriptor("Configuration property", DrunTextAttributes.PROPERTY),
             AttributesDescriptor("Operator", DrunTextAttributes.OPERATOR),
             AttributesDescriptor("Punctuation", DrunTextAttributes.PUNCTUATION),
             AttributesDescriptor("Line comment", DrunTextAttributes.LINE_COMMENT),
