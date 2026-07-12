@@ -1,0 +1,23 @@
+name: Check
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew test verifyPluginProjectConfiguration buildPlugin verifyPlugin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drun-intellij
+          path: build/distributions/*.zip
