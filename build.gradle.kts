@@ -73,8 +73,7 @@ intellijPlatform {
     }
     pluginVerification {
         ides {
-            recommended()
-            select { sinceBuild = providers.gradleProperty("pluginSinceBuild") }
+            current()
         }
     }
 }
