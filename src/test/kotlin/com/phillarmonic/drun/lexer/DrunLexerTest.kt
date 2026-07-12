@@ -19,7 +19,7 @@ task "deploy":
         assertHas(tokens, DrunTokenTypes.DEFINITION, "\"deploy\"")
         assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}environment")
         assertHas(tokens, DrunTokenTypes.KEYWORD, "if")
-        assertHas(tokens, DrunTokenTypes.ACTION, "docker")
+        assertHas(tokens, DrunTokenTypes.TYPE, "docker")
         assertHas(tokens, DrunTokenTypes.INTERPOLATION, "{${'$'}environment}")
         assertHas(tokens, DrunTokenTypes.LINE_COMMENT, "# comment")
     }
@@ -36,7 +36,21 @@ task "deploy":
         listOf("git", "policy", "orchestration", "service").forEach { word ->
             assertTrue("missing $word", tokens.any { it.second == word })
         }
-        listOf("is", "attached", "healthy").forEach { word -> assertHas(tokens, DrunTokenTypes.KEYWORD, word) }
+        assertHas(tokens, DrunTokenTypes.KEYWORD, "is")
+        listOf("attached", "healthy").forEach { word -> assertHas(tokens, DrunTokenTypes.CONSTANT, word) }
+    }
+
+    @Test fun `highlights task metadata and workdir from project specs`() {
+        val tokens = lex("""task "ci" mode "ci" means "Whole CI pipeline":
+  call task test
+  use workdir "docs"
+  run "uv run zensical serve"
+""")
+        listOf("task", "mode", "means", "call", "use").forEach { word ->
+            assertHas(tokens, DrunTokenTypes.KEYWORD, word)
+        }
+        assertHas(tokens, DrunTokenTypes.CONSTANT, "workdir")
+        assertHas(tokens, DrunTokenTypes.ACTION, "run")
     }
 
     private fun lex(text: String): List<Pair<IElementType, String>> {

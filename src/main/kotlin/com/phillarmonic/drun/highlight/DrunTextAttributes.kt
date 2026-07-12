@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 
 object DrunTextAttributes {
     @JvmField val KEYWORD = key("DRUN_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
-    @JvmField val ACTION = key("DRUN_ACTION", DefaultLanguageHighlighterColors.FUNCTION_CALL)
+    @JvmField val ACTION = key("DRUN_ACTION", DefaultLanguageHighlighterColors.KEYWORD)
     @JvmField val TYPE = key("DRUN_TYPE", DefaultLanguageHighlighterColors.CLASS_NAME)
     @JvmField val CONSTANT = key("DRUN_CONSTANT", DefaultLanguageHighlighterColors.CONSTANT)
     @JvmField val NUMBER = key("DRUN_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
