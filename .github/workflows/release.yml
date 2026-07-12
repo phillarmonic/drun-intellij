@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Check publishing secrets
+        env:
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+          JB_PUA_TOKEN: ${{ secrets.JB_PUA_TOKEN }}
+        run: |
+          test -n "$CERTIFICATE_CHAIN" || { echo "CERTIFICATE_CHAIN is missing"; exit 1; }
+          test -n "$PRIVATE_KEY" || { echo "PRIVATE_KEY is missing"; exit 1; }
+          test -n "$PRIVATE_KEY_PASSWORD" || { echo "PRIVATE_KEY_PASSWORD is missing"; exit 1; }
+          test -n "$JB_PUA_TOKEN" || { echo "JB_PUA_TOKEN is missing"; exit 1; }
+      - name: Test, sign, and publish
+        env:
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+          JB_PUA_TOKEN: ${{ secrets.JB_PUA_TOKEN }}
+        run: ./gradlew test verifyPluginProjectConfiguration signPlugin publishPlugin
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: build/distributions/*.zip

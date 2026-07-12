@@ -1,0 +1,25 @@
+<idea-plugin>
+    <id>com.phillarmonic.drun</id>
+    <name>Drun Language Support</name>
+    <vendor url="https://github.com/phillarmonic">Phillarmonic Software</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="drun-lsp.xml">com.intellij.modules.lsp</depends>
+
+    <resource-bundle>messages.DrunBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="Drun" language="Drun" implementationClass="com.phillarmonic.drun.DrunFileType" fieldName="INSTANCE" extensions="drun"/>
+        <lang.parserDefinition language="Drun" implementationClass="com.phillarmonic.drun.parser.DrunParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Drun" implementationClass="com.phillarmonic.drun.highlight.DrunSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="com.phillarmonic.drun.highlight.DrunColorSettingsPage"/>
+        <lang.commenter language="Drun" implementationClass="com.phillarmonic.drun.editor.DrunCommenter"/>
+        <lang.braceMatcher language="Drun" implementationClass="com.phillarmonic.drun.editor.DrunBraceMatcher"/>
+        <lang.quoteHandler language="Drun" implementationClass="com.phillarmonic.drun.editor.DrunQuoteHandler"/>
+        <lang.foldingBuilder language="Drun" implementationClass="com.phillarmonic.drun.editor.DrunFoldingBuilder"/>
+        <langCodeStyleSettingsProvider implementation="com.phillarmonic.drun.editor.DrunLanguageCodeStyleSettingsProvider"/>
+        <lineIndentProvider implementation="com.phillarmonic.drun.editor.DrunLineIndentProvider"/>
+        <notificationGroup id="Drun Language Server" displayType="BALLOON" isLogByDefault="true"/>
+    </extensions>
+
+</idea-plugin>

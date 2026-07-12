@@ -1,0 +1,11 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.phillarmonic.drun.settings.DrunGlobalSettings"/>
+        <projectService serviceImplementation="com.phillarmonic.drun.settings.DrunProjectSettings"/>
+        <applicationConfigurable id="com.phillarmonic.drun.settings.global" displayName="Drun" parentId="language" instance="com.phillarmonic.drun.settings.DrunGlobalConfigurable"/>
+        <projectConfigurable id="com.phillarmonic.drun.settings.project" displayName="Drun" parentId="language" instance="com.phillarmonic.drun.settings.DrunProjectConfigurable"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij.platform.lsp">
+        <serverSupportProvider implementation="com.phillarmonic.drun.lsp.DrunLspServerSupportProvider"/>
+    </extensions>
+</idea-plugin>
