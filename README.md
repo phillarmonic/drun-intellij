@@ -1,15 +1,42 @@
-# Drun Language Support for JetBrains IDEs
+# Drun Automation Language Support for JetBrains IDEs
 
-Native JetBrains editor support for the [Drun](https://github.com/phillarmonic/drun) automation language.
+Write and run readable project automation in JetBrains IDEs. This plugin adds syntax highlighting and editor support for [Drun](https://phillarmonic.github.io/drun/), the automation language executed by the [`xdrun` CLI](https://github.com/phillarmonic/drun).
 
-## Features
+## What you get
 
 - Native syntax highlighting for `.drun` files
-- Comments, matching and automatic pairs, indentation-aware folding, and color-scheme settings
-- Parser-backed diagnostics and task/keyword completion through `xdrun cmd:lsp`
+- Comments, bracket matching, auto-closing pairs, indentation-aware folding, and color-scheme settings
+- Parser-backed diagnostics and completions when `xdrun` is installed
 - Global language-server settings with per-project overrides
+- Support for tasks, conditions, loops, Docker, Git, HTTP, secrets, orchestration, and more
 
 The plugin targets IntelliJ Platform 2025.3 and newer. Native syntax highlighting and editor support work in Android Studio and other IntelliJ Platform products. The `xdrun` language server activates automatically only in products that contain JetBrains' LSP module; Android Studio currently receives syntax/editor support without diagnostics or completion.
+
+## Get started
+
+1. Install the plugin from the JetBrains Marketplace.
+2. Install [`xdrun`](https://phillarmonic.github.io/drun/getting-started/install/) to run Drunfiles and enable language-server features.
+3. Open or create a file ending in `.drun`.
+
+Try a small task:
+
+```drun
+version: 2.0
+
+task "hello":
+  step "Hello from Drun"
+  run "echo Hello from the shell"
+```
+
+Run it from your project directory with `xdrun`.
+
+## Teach your AI agents how to use drun
+
+Install the basics skill in your current project with:
+
+```bash
+xdrun cmd:skill install drun-basics
+```
 
 ## Language server
 
@@ -20,6 +47,15 @@ xdrun cmd:lsp
 ```
 
 Global settings default to an enabled server and the command `xdrun`. Project settings can inherit, enable, or disable the server. A blank project path inherits the global path; a nonblank project path takes precedence. If the executable is unavailable, native highlighting continues to work.
+
+## Learn Drun
+
+- [Getting started](https://phillarmonic.github.io/drun/getting-started/)
+- [Language reference](https://phillarmonic.github.io/drun/reference/language/overview/)
+- [Built-in actions](https://phillarmonic.github.io/drun/reference/language/built-in-actions/)
+- [Examples](https://phillarmonic.github.io/drun/examples/)
+
+Found a problem with the plugin? [Open an issue](https://github.com/phillarmonic/drun-intellij/issues).
 
 ## Development
 
