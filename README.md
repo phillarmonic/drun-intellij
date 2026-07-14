@@ -85,7 +85,7 @@ The highlighter is an independent JFlex lexer. When Drun syntax changes, update 
 
 Push a `v*` tag to run the release workflow. It tests and signs the plugin, publishes it to JetBrains Marketplace, and attaches the distribution ZIP to a GitHub release. Configure these repository secrets first:
 
-- `CERTIFICATE_CHAIN`
-- `PRIVATE_KEY`
-- `PRIVATE_KEY_PASSWORD`
-- `PUBLISH_TOKEN`
+- `CS_OFFLINE_CERTIFICATE_CHAIN`
+- `CS_OFFLINE_PRIVATE_KEY`
+- `CS_OFFLINE_PASSWORD`
+- `JB_PUA_TOKEN`
