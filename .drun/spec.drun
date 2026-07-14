@@ -1,0 +1,27 @@
+version: 2.0
+
+project "drun-intellij" version "1.0":
+    requires tools:
+        java >= "21"
+
+task "default" means "Show available development actions":
+    info "Available actions: build, test, run-ide, package"
+
+task "build" means "Build and verify the IntelliJ plugin":
+    step "Building the plugin"
+    run "./gradlew build"
+    success "Plugin build completed"
+
+task "test" means "Run the plugin test suite":
+    step "Running tests"
+    run "./gradlew test"
+    success "All tests passed"
+
+task "run-ide" means "Launch the plugin in a sandbox IDE":
+    step "Launching the sandbox IDE"
+    run "./gradlew runIde"
+
+task "package" means "Create the production plugin distribution":
+    step "Packaging the plugin"
+    run "./gradlew buildPlugin"
+    success "Plugin distribution written to build/distributions"

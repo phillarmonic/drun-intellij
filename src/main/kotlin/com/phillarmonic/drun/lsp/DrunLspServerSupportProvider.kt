@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.lsp.api.LspIntegrationProvider
 import com.intellij.platform.lsp.api.ProjectWideLspClientDescriptor
+import com.intellij.util.EnvironmentUtil
 import com.phillarmonic.drun.settings.DrunSettingsResolver
 import java.nio.file.Files
 import java.nio.file.Path
@@ -35,14 +36,14 @@ class DrunLspServerSupportProvider : LspIntegrationProvider {
     companion object {
         private val LOG = Logger.getInstance(DrunLspServerSupportProvider::class.java)
 
-        internal fun isExecutableAvailable(command: String): Boolean {
+        internal fun isExecutableAvailable(command: String, path: String = EnvironmentUtil.getValue("PATH").orEmpty()): Boolean {
             val looksLikePath = command.contains('/') || command.contains('\\') || Path.of(command).isAbsolute
             return if (looksLikePath) runCatching { Files.isRegularFile(Path.of(command)) && Files.isExecutable(Path.of(command)) }.getOrDefault(false)
-            else executableOnPath(command)
+            else executableOnPath(command, path)
         }
 
-        private fun executableOnPath(command: String): Boolean =
-            (System.getenv("PATH") ?: "").split(java.io.File.pathSeparatorChar).any { directory ->
+        private fun executableOnPath(command: String, path: String): Boolean =
+            path.split(java.io.File.pathSeparatorChar).any { directory ->
                 runCatching { Path.of(directory, command).let { it.isRegularFile() && it.isExecutable() } }.getOrDefault(false)
             }
     }
