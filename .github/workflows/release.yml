@@ -6,6 +6,9 @@ on:
 
 jobs:
   release:
+    # Protect this environment with required maintainer reviewers in GitHub.
+    # Environment secrets are not made available until the deployment is approved.
+    environment: publishing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

@@ -83,9 +83,12 @@ The installable ZIP is written to `build/distributions`. `verifyPluginProjectCon
 The highlighter is an independent JFlex lexer. When Drun syntax changes, update `src/main/grammar/Drun.flex` and add fixtures based on the canonical samples and grammar tests in `drun-vscode`.
 ## Marketplace releases
 
-Push a `v*` tag to run the release workflow. It tests and signs the plugin, publishes it to JetBrains Marketplace, and attaches the distribution ZIP to a GitHub release. Configure these repository secrets first:
+Push a `v*` tag to start the release workflow. The publishing job targets the `publishing` GitHub environment.
 
+Required secrets for publishing are:
 - `CS_OFFLINE_CERTIFICATE_CHAIN`
 - `CS_OFFLINE_PRIVATE_KEY`
 - `CS_OFFLINE_PASSWORD`
 - `JB_PUA_TOKEN`
+
+GitHub does not apply approval rules merely because the environment is named in the workflow, so do not publish until the required-reviewer rule is enabled. Once protected, the entire job waits for maintainer approval before it checks out code or receives any secrets. After approval, it tests and signs the plugin, publishes it to JetBrains Marketplace, and attaches the distribution ZIP to a GitHub release.
