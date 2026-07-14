@@ -33,6 +33,15 @@ The build uses Java 21. The repository includes `.java-version` for version mana
 
 The shared **Run Drun Plugin** configuration runs the `runIde` Gradle task. Use its Run action to open a sandbox IDE or its Debug action to launch the sandbox with the debugger attached. If it is not visible immediately after opening the project, reload the Gradle project once.
 
+The same development workflows are available through Drun:
+
+```bash
+xdrun build
+xdrun test
+xdrun run-ide
+xdrun package
+```
+
 The installable ZIP is written to `build/distributions`. `verifyPluginProjectConfiguration` checks project metadata and `verifyPlugin` runs JetBrains Plugin Verifier against configured IDE releases.
 
 The highlighter is an independent JFlex lexer. When Drun syntax changes, update `src/main/grammar/Drun.flex` and add fixtures based on the canonical samples and grammar tests in `drun-vscode`.
