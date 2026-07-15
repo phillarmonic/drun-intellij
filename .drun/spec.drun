@@ -1,11 +1,11 @@
 version: 2.0
 
-project "drun-intellij" version "1.0":
+project "drun-intellij" version "1.0.1":
     requires tools:
         java >= "21"
 
 task "default" means "Show available development actions":
-    info "Available actions: build, test, run-ide, package"
+    info "Available actions: build, test, run-ide, set-version, package"
 
 task "build" means "Build and verify the IntelliJ plugin":
     step "Building the plugin"
@@ -21,7 +21,43 @@ task "run-ide" means "Launch the plugin in a sandbox IDE":
     step "Launching the sandbox IDE"
     run "./gradlew runIde"
 
+task "set-version" means "Synchronize the IntelliJ plugin release version":
+    requires $version as string matching pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+    get property "pluginVersion" from "gradle.properties" as $plugin_version
+    get match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" from ".drun/spec.drun" as $spec_version
+    check match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" in ".drun/spec.drun" equals "{$plugin_version}"
+
+    step "Updating version {$plugin_version} to {$version}"
+    update property "pluginVersion" in "gradle.properties" to "{$version}" or fail
+    update match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" in ".drun/spec.drun" to "{$version}" or fail
+    success "Version synchronized at {$version}"
+
 task "package" means "Create the production plugin distribution":
+    given $version defaults to ""
+    given $previous_version defaults to ""
+    given $first_release defaults to "false" from ["false", "true"]
+
+    get property "pluginVersion" from "gradle.properties" as $plugin_version
+    capture from shell "git tag --points-at HEAD --list 'v*' | head -n 1 | sed 's/^v//'" as $tag_version
+    if $version is not empty:
+        set $release_version to "{$version}"
+    else if $tag_version is not empty:
+        set $release_version to "{$tag_version}"
+    else:
+        set $release_version to "{$plugin_version}"
+
+    set $resolved_previous_version to "{$previous_version}"
+    if $first_release is "false":
+        if $resolved_previous_version is empty:
+            capture from shell "curl -fsSL 'https://plugins.jetbrains.com/plugins/list?pluginId=com.phillarmonic.drun' 2>/dev/null | grep -o '<version>[^<]*</version>' | head -n 1 | sed 's/<[^>]*>//g'" as $resolved_previous_version
+        if $resolved_previous_version is empty:
+            fail "Could not resolve the previous Marketplace version; pass previous_version or use first_release=true"
+
+    step "Checking canonical and previously published versions"
+    check property "pluginVersion" in "gradle.properties" equals "{$release_version}"
+    check match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" in ".drun/spec.drun" equals "{$plugin_version}"
+    check property "pluginVersion" in "gradle.properties" differs from "{$resolved_previous_version}"
+
     step "Packaging the plugin"
     run "./gradlew buildPlugin"
     success "Plugin distribution written to build/distributions"

@@ -22,6 +22,10 @@ task "deploy":
     step "Deploying to {${'$'}environment}"
     build docker image "myapp:{${'$'}environment}"
     success "Build complete" # ready
+
+  get property "pluginVersion" from "gradle.properties" as ${'$'}plugin_version
+  check json "/version" in "package.json" differs from "1"
+  update yaml "chart.appVersion" in "Chart.yaml" to "2" or add as string
 """
     override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey>? = null
     override fun getAttributeDescriptors() = DESCRIPTORS

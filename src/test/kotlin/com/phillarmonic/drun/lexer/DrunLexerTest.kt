@@ -167,6 +167,37 @@ echo 'Done'"
         assertHas(tokens, DrunTokenTypes.ACTION, "run")
     }
 
+    @Test fun `highlights every file value statement family without bad characters`() {
+        val source = """get property "pluginVersion" from "gradle.properties" as ${'$'}plugin_version
+get json "/version" from "package.json" as ${'$'}package_version
+get yaml "chart.appVersion" from "Chart.yaml" as ${'$'}chart_version
+get toml "package.version" from "Cargo.toml" as ${'$'}crate_version
+get match "(?m)^VERSION=(?P<value>[^\\r\\n]+)${'$'}" from "VERSION.txt" as ${'$'}version
+check property "pluginVersion" in "gradle.properties" equals "2"
+check json "/version" in "package.json" differs from "1"
+check yaml "chart.version" in "Chart.yaml" equals "2"
+check toml "package.version" in "Cargo.toml" differs from "1"
+check match "(?P<value>.+)" in "VERSION" equals "2"
+update property "pluginVersion" in "gradle.properties" to "2" or fail
+update json "/version" in "package.json" to "2" or add as string
+update yaml "chart.version" in "Chart.yaml" to "2" or add as number
+update toml "package.prerelease" in "Cargo.toml" to "false" or add as boolean
+update match "(?P<value>.+)" in "VERSION" to "2" or fail
+"""
+        val tokens = lex(source)
+
+        assertEquals("file-value syntax must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
+        listOf("get", "check", "update").forEach { assertHas(tokens, DrunTokenTypes.ACTION, it) }
+        listOf("property", "json", "yaml", "toml", "match").forEach {
+            assertHas(tokens, DrunTokenTypes.TYPE, it)
+        }
+        listOf("equals", "differs").forEach { assertHas(tokens, DrunTokenTypes.LOGIC_OPERATOR, it) }
+        listOf("from", "in", "to", "or", "as").forEach { assertHas(tokens, DrunTokenTypes.KEYWORD, it) }
+        listOf("string", "number", "boolean").forEach { assertHas(tokens, DrunTokenTypes.TYPE, it) }
+        assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}plugin_version")
+    }
+
     private fun lex(text: String): List<Pair<IElementType, String>> {
         val lexer = DrunLexerAdapter()
         lexer.start(text)
