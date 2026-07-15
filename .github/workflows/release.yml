@@ -15,9 +15,24 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "26"
           cache: gradle
       - uses: gradle/actions/setup-gradle@v4
+      - name: Render release notes
+        run: |
+          release_version="${GITHUB_REF_NAME#v}"
+          plugin_version="$(sed -n 's/^pluginVersion=//p' gradle.properties)"
+
+          if [ "$release_version" != "$plugin_version" ]; then
+            echo "Tag version $release_version does not match pluginVersion $plugin_version"
+            exit 1
+          fi
+
+          ./gradlew getChangelog \
+            --project-version "$release_version" \
+            --no-header \
+            --no-empty-sections \
+            --output-file build/release-notes.md
       - name: Check publishing secrets
         env:
           CERTIFICATE_CHAIN: ${{ secrets.CS_OFFLINE_CERTIFICATE_CHAIN }}
@@ -38,4 +53,5 @@ jobs:
         run: ./gradlew test verifyPluginProjectConfiguration signPlugin publishPlugin
       - uses: softprops/action-gh-release@v2
         with:
+          body_path: build/release-notes.md
           files: build/distributions/*.zip

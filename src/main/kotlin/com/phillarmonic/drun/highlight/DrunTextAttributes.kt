@@ -5,8 +5,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 
 object DrunTextAttributes {
     @JvmField val KEYWORD = key("DRUN_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
-    @JvmField val ACTION = key("DRUN_ACTION", DefaultLanguageHighlighterColors.KEYWORD)
-    @JvmField val TYPE = key("DRUN_TYPE", DefaultLanguageHighlighterColors.KEYWORD)
+    @JvmField val ACTION = key("DRUN_ACTION", DefaultLanguageHighlighterColors.STATIC_METHOD)
+    @JvmField val SUB_STATEMENT = key("DRUN_SUB_STATEMENT", DefaultLanguageHighlighterColors.LABEL)
+    @JvmField val TYPE = key("DRUN_TYPE", DefaultLanguageHighlighterColors.METADATA)
+    @JvmField val MACRO = key("DRUN_MACRO", DefaultLanguageHighlighterColors.STATIC_FIELD)
     @JvmField val CONSTANT = key("DRUN_CONSTANT", DefaultLanguageHighlighterColors.CONSTANT)
     @JvmField val NUMBER = key("DRUN_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
     @JvmField val STRING = key("DRUN_STRING", DefaultLanguageHighlighterColors.STRING)
@@ -17,6 +19,8 @@ object DrunTextAttributes {
     @JvmField val DEFINITION = key("DRUN_DEFINITION", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
     @JvmField val PROPERTY = key("DRUN_PROPERTY", DefaultLanguageHighlighterColors.INSTANCE_FIELD)
     @JvmField val OPERATOR = key("DRUN_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+    @JvmField val LOGIC_OPERATOR = key("DRUN_LOGIC_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+    @JvmField val WORD_COMPARISON = key("DRUN_WORD_COMPARISON", DefaultLanguageHighlighterColors.KEYWORD)
     @JvmField val PUNCTUATION = key("DRUN_PUNCTUATION", DefaultLanguageHighlighterColors.BRACES)
     @JvmField val LINE_COMMENT = key("DRUN_LINE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
     @JvmField val BLOCK_COMMENT = key("DRUN_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
