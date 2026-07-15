@@ -9,6 +9,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DrunLexerTest {
+    @Test fun `recognizes both warning action spellings`() {
+        val tokens = lex("""warn "Short warning spelling"
+warning "Full warning spelling"""")
+
+        assertHas(tokens, DrunTokenTypes.ACTION, "warn")
+        assertHas(tokens, DrunTokenTypes.ACTION, "warning")
+    }
+
     @Test fun `recognizes representative language families`() {
         val tokens = lex("""@platform("linux")
 task "deploy":
@@ -71,7 +79,7 @@ info "{secret('api_key')}"
             "suffix", "filtered", "sorted", "reversed", "unique", "first", "last",
         )
         val builtins = listOf(
-            "current git commit", "current git branch", "file exists", "dir exists", "start progress",
+            "current git commit", "current git branch", "available tasks", "file exists", "dir exists", "start progress",
             "update progress", "finish progress", "start timer", "stop timer", "show elapsed time",
             "docker compose command", "docker compose status", "compose_cmd", "dns_resolve", "dns_check",
             "dns_validate", "now", "pwd", "hostname", "env", "secret", "current",
@@ -79,6 +87,7 @@ info "{secret('api_key')}"
         val source = buildString {
             operations.forEach { appendLine("""info "{${'$'}value $it 'x'}"""") }
             builtins.forEach { appendLine("""info "{$it}"""") }
+            appendLine("""info "{available tasks(', ', 'default', 'internal.release')}"""")
             appendLine("""info "{custom_macro('x')}"""")
             appendLine("""info "{${'$'}outer ? 'prefix-{${'$'}inner}' : ''}"""")
             appendLine("""run "echo ${'$'}{HOME:-/tmp}"""")
@@ -90,6 +99,9 @@ info "{secret('api_key')}"
         }
         assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}inner")
         assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}{HOME:-/tmp}")
+        listOf(", ", "default", "internal.release").forEach {
+            assertHas(tokens, DrunTokenTypes.STRING, it)
+        }
         assertEquals("interpolation macros must not produce bad characters", emptyList<String>(),
             tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
     }

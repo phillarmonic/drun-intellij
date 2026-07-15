@@ -69,7 +69,7 @@ ENV_VARIABLE=\$\{[A-Za-z_][A-Za-z0-9_]*(:-[^}\r\n]*)?\}
 DECLARATION="version"|"task"|"means"|"mode"|"project"|"scm"|"provisioning"|"sources"|"set"|"let"|"define"|"parameter"|"snippet"|"template"|"mixin"|"requires"|"tools"|"given"|"accepts"|"defaults"|"from"|"to"|"as"|"of"|"depends"|"include"|"use"|"uses"|"includes"|"call"|"with"|"capture"|"service"
 CONTROL="if"|"else"|"when"|"otherwise"|"for"|"each"|"in"|"parallel"|"try"|"catch"|"finally"|"throw"|"rethrow"|"ignore"|"break"|"continue"|"before"|"after"|"on"|"then"|"and"|"or"|"not"|"is"|"are"|"older"|"newer"|"than"|"contains"|"matches"|"matching"|"using"|"ordered"|"between"|"exists"|"available"|"running"|"detected"
 WORD_OPERATOR="be"|"into"|"at"|"by"|"on"|"off"|"up"|"down"|"with"|"without"|"from"|"to"|"as"|"of"|"range"|"then"|"starting"|"extract"|"remove"|"overwrite"
-ACTION="info"|"step"|"warn"|"error"|"success"|"fail"|"echo"|"run"|"exec"|"shell"|"output"|"config"|"create"|"copy"|"move"|"delete"|"read"|"write"|"append"|"backup"|"check"|"ensure"|"extract"|"archive"|"build"|"push"|"pull"|"tag"|"remove"|"start"|"starting"|"stop"|"scale"|"deploy"|"rollback"|"wait"|"open"|"ping"|"test"|"expect"|"download"|"upload"|"send"|"receive"|"fetch"|"clone"|"init"|"switch"|"merge"|"add"|"commit"|"status"|"log"|"show"|"detect"|"search"|"update"|"restart"|"orchestrate"|"execute"|"apply"|"describe"|"expose"
+ACTION="info"|"step"|"warn"|"warning"|"error"|"success"|"fail"|"echo"|"run"|"exec"|"shell"|"output"|"config"|"create"|"copy"|"move"|"delete"|"read"|"write"|"append"|"backup"|"check"|"ensure"|"extract"|"archive"|"build"|"push"|"pull"|"tag"|"remove"|"start"|"starting"|"stop"|"scale"|"deploy"|"rollback"|"wait"|"open"|"ping"|"test"|"expect"|"download"|"upload"|"send"|"receive"|"fetch"|"clone"|"init"|"switch"|"merge"|"add"|"commit"|"status"|"log"|"show"|"detect"|"search"|"update"|"restart"|"orchestrate"|"execute"|"apply"|"describe"|"expose"
 FILE_VALUE_ACTION="get"|"check"|"update"
 FILE_VALUE_FORMAT="property"|"json"|"yaml"|"toml"|"match"
 FILE_VALUE_COMPARISON="equals"|"differs"
@@ -77,7 +77,7 @@ DOMAIN="drun"|"drunhub"|"setup"|"teardown"|"docker"|"image"|"container"|"compose
 TYPE="string"|"number"|"boolean"|"list"|"json"|"xml"|"http"|"https"|"docker"|"git"|"kubernetes"|"namespace"|"network"|"directory"|"file"|"service"|"container"|"image"|"repository"|"branch"|"url"|"email"|"uuid"
 MACRO="semver"|"semver_optional_v"|"semver_extended"|"docker_tag"
 INTERPOLATION_MACRO="concat"|"split"|"replace"|"trim"|"uppercase"|"lowercase"|"prepend"|"join"|"slice"|"length"|"keys"|"values"|"basename"|"dirname"|"extension"|"prefix"|"suffix"|"filtered"|"sorted"|"reversed"|"unique"|"first"|"last"
-INTERPOLATION_BUILTIN="current git commit"|"current git branch"|"file exists"|"dir exists"|"start progress"|"update progress"|"finish progress"|"start timer"|"stop timer"|"show elapsed time"|"docker compose command"|"docker compose status"|"compose_cmd"|"dns_resolve"|"dns_check"|"dns_validate"|"now"|"pwd"|"hostname"|"env"|"secret"|"current"
+INTERPOLATION_BUILTIN="current git commit"|"current git branch"|"available tasks"|"file exists"|"dir exists"|"start progress"|"update progress"|"finish progress"|"start timer"|"stop timer"|"show elapsed time"|"docker compose command"|"docker compose status"|"compose_cmd"|"dns_resolve"|"dns_check"|"dns_validate"|"now"|"pwd"|"hostname"|"env"|"secret"|"current"
 CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwin"
 
 %%

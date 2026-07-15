@@ -19,7 +19,7 @@ project "drun-intellij" version "1.2.0":
                         host: "github.com"
 
 task "default" means "Show available development actions":
-    info "Available actions: test, check, build, ci, run-ide, set-version, prepare-release, package"
+    info "Available tasks: {available tasks(', ')}"
 
 task "test" means "Run the plugin test suite":
     run "./gradlew test"
