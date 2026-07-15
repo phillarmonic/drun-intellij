@@ -1,63 +1,94 @@
 version: 2.0
-
+/*
+* Doing the dogfooding: running drun things in drun
+*/
 project "drun-intellij" version "1.0.1":
     requires tools:
+        git
         java >= "21"
 
-task "default" means "Show available development actions":
-    info "Available actions: build, test, run-ide, set-version, package"
+    scm: # Declare a specific SCM implementation for easier manipulation
+        git: # Technology
+            github: # Provider
+                drun-intellij: # Repo alias (can be potato if you want to, just for convenience when referencing)
+                    default: https
+                    https: "https://github.com/phillarmonic/drun-intellij.git"
+                    ssh: "git@github.com:phillarmonic/drun-intellij.git"
+                    cli:
+                        repository: "phillarmonic/drun-intellij"
+                        host: "github.com"
 
-task "build" means "Build and verify the IntelliJ plugin":
-    step "Building the plugin"
-    run "./gradlew build"
-    success "Plugin build completed"
+task "default" means "Show available development actions":
+    info "Available actions: test, check, build, ci, run-ide, set-version, prepare-release, package"
 
 task "test" means "Run the plugin test suite":
-    step "Running tests"
     run "./gradlew test"
-    success "All tests passed"
+
+task "check" means "Test the plugin and validate its project metadata":
+    call task test
+    run "./gradlew verifyPluginProjectConfiguration"
+
+task "build" means "Create the production plugin distribution":
+    call task check
+    run "./gradlew buildPlugin"
+
+task "ci" mode "ci" means "Run the complete CI pipeline":
+    step "Build and verify the plugin"
+    call task build
+    step "Check compatibility with supported IDE releases"
+    run "./gradlew verifyPlugin"
+    success "CI completed successfully"
 
 task "run-ide" means "Launch the plugin in a sandbox IDE":
     step "Launching the sandbox IDE"
     run "./gradlew runIde"
 
 task "set-version" means "Synchronize the IntelliJ plugin release version":
-    requires $version as string matching pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
-    get property "pluginVersion" from "gradle.properties" as $plugin_version
-    get match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" from ".drun/spec.drun" as $spec_version
-    check match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" in ".drun/spec.drun" equals "{$plugin_version}"
+    requires $version as string matching semver_optional_v
 
-    step "Updating version {$plugin_version} to {$version}"
-    update property "pluginVersion" in "gradle.properties" to "{$version}" or fail
-    update match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" in ".drun/spec.drun" to "{$version}" or fail
-    success "Version synchronized at {$version}"
+    set $release_version to "{$version without prefix 'v'}"
+    get property "pluginVersion" from "gradle.properties" as $plugin_version
+    check project version equals "{$plugin_version}"
+
+    if $plugin_version is "{$release_version}":
+        info "The plugin is already set to {$release_version}"
+    else:
+        step "Updating version {$plugin_version} to {$release_version}"
+
+    update property "pluginVersion" in "gradle.properties" to "{$release_version}" or fail
+    update project version to "{$release_version}"
+
+    success "Version synchronized at {$release_version}"
+
+task "prepare-release" means "Prepare and verify a developer-selected release version":
+    requires $version as string matching semver_optional_v
+
+    # Immediately drop the preparation if version is incorrect
+    set $release_version to "{$version without prefix 'v'}"
+    git ensure $release_version is newer than latest version from drun-intellij
+
+    step "Running CI for release candidate {$version}"
+    call task ci
+
+    get property "pluginVersion" from "gradle.properties" as $plugin_version
+    if $plugin_version is "{$release_version}":
+        info "The plugin is already set to {$release_version}"
+    else:
+        step "Updating version {$plugin_version} to {$release_version}"
+
+    update property "pluginVersion" in "gradle.properties" to "{$release_version}" or fail
+    update project version to "{$release_version}"
+
+    success "Release {$release_version} is prepared; run xdrun package after tagging the release commit"
 
 task "package" means "Create the production plugin distribution":
-    given $version defaults to ""
-    given $previous_version defaults to ""
-    given $first_release defaults to "false" from ["false", "true"]
+    requires $version as string matching semver_optional_v
 
-    get property "pluginVersion" from "gradle.properties" as $plugin_version
-    capture from shell "git tag --points-at HEAD --list 'v*' | head -n 1 | sed 's/^v//'" as $tag_version
-    if $version is not empty:
-        set $release_version to "{$version}"
-    else if $tag_version is not empty:
-        set $release_version to "{$tag_version}"
-    else:
-        set $release_version to "{$plugin_version}"
-
-    set $resolved_previous_version to "{$previous_version}"
-    if $first_release is "false":
-        if $resolved_previous_version is empty:
-            capture from shell "curl -fsSL 'https://plugins.jetbrains.com/plugins/list?pluginId=com.phillarmonic.drun' 2>/dev/null | grep -o '<version>[^<]*</version>' | head -n 1 | sed 's/<[^>]*>//g'" as $resolved_previous_version
-        if $resolved_previous_version is empty:
-            fail "Could not resolve the previous Marketplace version; pass previous_version or use first_release=true"
-
-    step "Checking canonical and previously published versions"
+    set $release_version to "{$version without prefix 'v'}"
+    step "Checking release version {$release_version}"
     check property "pluginVersion" in "gradle.properties" equals "{$release_version}"
-    check match "(?m)^project \"drun-intellij\" version \"(?P<value>[^\"\\r\\n]+)\":$" in ".drun/spec.drun" equals "{$plugin_version}"
-    check property "pluginVersion" in "gradle.properties" differs from "{$resolved_previous_version}"
+    check project version equals "{$release_version}"
 
     step "Packaging the plugin"
-    run "./gradlew buildPlugin"
+    call task build
     success "Plugin distribution written to build/distributions"

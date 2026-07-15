@@ -13,7 +13,9 @@ class DrunSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> = pack(when (tokenType) {
         DrunTokenTypes.KEYWORD -> DrunTextAttributes.KEYWORD
         DrunTokenTypes.ACTION -> DrunTextAttributes.ACTION
+        DrunTokenTypes.SUB_STATEMENT -> DrunTextAttributes.SUB_STATEMENT
         DrunTokenTypes.TYPE -> DrunTextAttributes.TYPE
+        DrunTokenTypes.MACRO -> DrunTextAttributes.MACRO
         DrunTokenTypes.CONSTANT -> DrunTextAttributes.CONSTANT
         DrunTokenTypes.NUMBER -> DrunTextAttributes.NUMBER
         DrunTokenTypes.STRING -> DrunTextAttributes.STRING
@@ -22,9 +24,11 @@ class DrunSyntaxHighlighter : SyntaxHighlighterBase() {
         DrunTokenTypes.VARIABLE -> DrunTextAttributes.VARIABLE
         DrunTokenTypes.ANNOTATION -> DrunTextAttributes.ANNOTATION
         DrunTokenTypes.DEFINITION -> DrunTextAttributes.DEFINITION
+        DrunTokenTypes.IDENTIFIER -> DrunTextAttributes.DEFINITION
         DrunTokenTypes.PROPERTY -> DrunTextAttributes.PROPERTY
         DrunTokenTypes.OPERATOR -> DrunTextAttributes.OPERATOR
         DrunTokenTypes.LOGIC_OPERATOR -> DrunTextAttributes.LOGIC_OPERATOR
+        DrunTokenTypes.WORD_COMPARISON -> DrunTextAttributes.WORD_COMPARISON
         DrunTokenTypes.LBRACE, DrunTokenTypes.RBRACE, DrunTokenTypes.LBRACKET, DrunTokenTypes.RBRACKET,
         DrunTokenTypes.LPAREN, DrunTokenTypes.RPAREN,
         DrunTokenTypes.COLON, DrunTokenTypes.COMMA -> DrunTextAttributes.PUNCTUATION
