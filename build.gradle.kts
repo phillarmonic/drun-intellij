@@ -1,3 +1,4 @@
+import org.jetbrains.changelog.date
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -6,6 +7,7 @@ plugins {
     kotlin("jvm") version "2.2.20"
     id("org.jetbrains.intellij.platform") version "2.18.1"
     id("org.jetbrains.grammarkit") version "2023.3.0.3"
+    id("org.jetbrains.changelog") version "2.5.0"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -27,6 +29,13 @@ dependencies {
 }
 
 kotlin { jvmToolchain(21) }
+
+changelog {
+    version.set(providers.gradleProperty("pluginVersion"))
+    repositoryUrl.set("https://github.com/phillarmonic/drun-intellij")
+    header.set(provider { "[${version.get()}] - ${date()}" })
+    groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
+}
 
 tasks {
     generateLexer {

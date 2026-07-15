@@ -67,9 +67,6 @@ task "prepare-release" means "Prepare and verify a developer-selected release ve
     set $release_version to "{$version without prefix 'v'}"
     git ensure $release_version is newer than latest version from drun-intellij
 
-    step "Running CI for release candidate {$version}"
-    call task ci
-
     get property "pluginVersion" from "gradle.properties" as $plugin_version
     if $plugin_version is "{$release_version}":
         info "The plugin is already set to {$release_version}"
@@ -78,6 +75,12 @@ task "prepare-release" means "Prepare and verify a developer-selected release ve
 
     update property "pluginVersion" in "gradle.properties" to "{$release_version}" or fail
     update project version to "{$release_version}"
+
+    step "Promoting unreleased changelog entries to {$release_version}"
+    run "./gradlew patchChangelog"
+
+    step "Running CI for release candidate {$version}"
+    call task ci
 
     success "Release {$release_version} is prepared; run xdrun package after tagging the release commit"
 
