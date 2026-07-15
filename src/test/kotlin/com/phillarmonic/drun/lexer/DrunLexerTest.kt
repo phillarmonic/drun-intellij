@@ -50,6 +50,14 @@ task "deploy":
         assertHas(tokens, DrunTokenTypes.KEYWORD, "parallel")
     }
 
+    @Test fun `highlights comparison and logic symbols separately from arithmetic`() {
+        val tokens = lex("if 2 >= 1 && 1 != 0 || !false:\n  set ${'$'}value to 1 + 2")
+        listOf(">=", "&&", "!=", "||", "!").forEach {
+            assertHas(tokens, DrunTokenTypes.LOGIC_OPERATOR, it)
+        }
+        assertHas(tokens, DrunTokenTypes.OPERATOR, "+")
+    }
+
     @Test fun `highlights dependency task references`() {
         val tokens = lex("""depends on install
 depends on lint and unit_tests
@@ -63,6 +71,32 @@ depends on build then smoke_test in parallel
         listOf("on", "and", "then", "in", "parallel").forEach {
             assertHas(tokens, DrunTokenTypes.KEYWORD, it)
         }
+    }
+
+    @Test fun `highlights required tools with and without version constraints`() {
+        val tokens = lex("""project "aekf" version "1.0":
+  requires tools:
+    go >= "1.26"
+    gosec
+    govulncheck
+    golangci-lint
+    custom-tool >= 2.12 <= "3.0" provision
+  info "project ready"
+
+task "default":
+  requires tools:
+    task-tool
+  info "task ready"
+""")
+        listOf("go", "gosec", "govulncheck", "golangci-lint", "custom-tool", "task-tool").forEach {
+            assertHas(tokens, DrunTokenTypes.CONSTANT, it)
+        }
+        assertHas(tokens, DrunTokenTypes.LOGIC_OPERATOR, ">=")
+        assertHas(tokens, DrunTokenTypes.STRING, "1.26")
+        assertHas(tokens, DrunTokenTypes.NUMBER, "2.12")
+        assertHas(tokens, DrunTokenTypes.CONSTANT, "provision")
+        assertHas(tokens, DrunTokenTypes.KEYWORD, "task")
+        assertHas(tokens, DrunTokenTypes.ACTION, "info")
     }
 
     @Test fun `recognizes built in types in parameter declarations`() {

@@ -16,6 +16,8 @@ class DrunColorSettingsPage : ColorSettingsPage {
 @platform("linux", "mac")
 task "deploy":
   given ${'$'}environment defaults to "staging"
+  requires tools:
+    go >= "1.26"
   if docker is available:
     step "Deploying to {${'$'}environment}"
     build docker image "myapp:{${'$'}environment}"
@@ -41,6 +43,7 @@ task "deploy":
             AttributesDescriptor("Definition", DrunTextAttributes.DEFINITION),
             AttributesDescriptor("Configuration property", DrunTextAttributes.PROPERTY),
             AttributesDescriptor("Operator", DrunTextAttributes.OPERATOR),
+            AttributesDescriptor("Comparison and logic operator", DrunTextAttributes.LOGIC_OPERATOR),
             AttributesDescriptor("Punctuation", DrunTextAttributes.PUNCTUATION),
             AttributesDescriptor("Line comment", DrunTextAttributes.LINE_COMMENT),
             AttributesDescriptor("Block comment", DrunTextAttributes.BLOCK_COMMENT),

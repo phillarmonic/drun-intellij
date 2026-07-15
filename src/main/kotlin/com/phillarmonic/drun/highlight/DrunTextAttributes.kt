@@ -17,6 +17,7 @@ object DrunTextAttributes {
     @JvmField val DEFINITION = key("DRUN_DEFINITION", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
     @JvmField val PROPERTY = key("DRUN_PROPERTY", DefaultLanguageHighlighterColors.INSTANCE_FIELD)
     @JvmField val OPERATOR = key("DRUN_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+    @JvmField val LOGIC_OPERATOR = key("DRUN_LOGIC_OPERATOR", DefaultLanguageHighlighterColors.KEYWORD)
     @JvmField val PUNCTUATION = key("DRUN_PUNCTUATION", DefaultLanguageHighlighterColors.BRACES)
     @JvmField val LINE_COMMENT = key("DRUN_LINE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
     @JvmField val BLOCK_COMMENT = key("DRUN_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)

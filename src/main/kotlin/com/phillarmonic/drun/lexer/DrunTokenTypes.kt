@@ -21,6 +21,7 @@ object DrunTokenTypes {
     @JvmField val DEFINITION = DrunTokenType("DEFINITION")
     @JvmField val PROPERTY = DrunTokenType("PROPERTY")
     @JvmField val OPERATOR = DrunTokenType("OPERATOR")
+    @JvmField val LOGIC_OPERATOR = DrunTokenType("LOGIC_OPERATOR")
     @JvmField val LBRACE = DrunTokenType("LBRACE")
     @JvmField val RBRACE = DrunTokenType("RBRACE")
     @JvmField val LBRACKET = DrunTokenType("LBRACKET")

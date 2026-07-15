@@ -15,10 +15,30 @@ import static com.phillarmonic.drun.lexer.DrunTokenTypes.*;
 %type IElementType
 %public
 
+%{
+  private int toolListParentIndent;
+
+  private int indentationBeforeCurrentToken() {
+    int indentation = 0;
+    for (int offset = zzStartRead - 1; offset >= 0; offset--) {
+      char character = zzBuffer.charAt(offset);
+      if (character != ' ' && character != '\t') break;
+      indentation++;
+    }
+    return indentation;
+  }
+%}
+
 %state IN_STRING
 %state IN_SINGLE_STRING
 %state EXPECT_NAME
 %state DEPENDENCY_LIST
+%state AFTER_REQUIRES
+%state EXPECT_TOOLS_COLON
+%state TOOL_LIST_LINE_START
+%state TOOL_LIST_ENTRY
+%state TOOL_LIST_VALUE
+%state IN_TOOL_STRING
 
 WHITE_SPACE=[ \t\f\r\n]+
 IDENT=[A-Za-z_][A-Za-z0-9_.-]*
@@ -43,6 +63,7 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
   "/*"([^*]|\*+[^*/])*                 { return BLOCK_COMMENT; }
   {ANNOTATION}                           { return ANNOTATION; }
   "depends"                             { yybegin(DEPENDENCY_LIST); return KEYWORD; }
+  "requires"                            { toolListParentIndent = indentationBeforeCurrentToken(); yybegin(AFTER_REQUIRES); return KEYWORD; }
   "task"|"snippet"                     { yybegin(EXPECT_NAME); return KEYWORD; }
   "template"[ \t]+"task"               { yybegin(EXPECT_NAME); return KEYWORD; }
   {DECLARATION}|{CONTROL}                { return KEYWORD; }
@@ -56,7 +77,8 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
   ("executable"|[A-Z_][A-Z0-9_]*)/[ \t]*":" { return PROPERTY; }
   \"                                    { yybegin(IN_STRING); return STRING; }
   "'"                                   { yybegin(IN_SINGLE_STRING); return STRING; }
-  "=="|"!="|">="|"<="|"&&"|"||"|"="|">"|"<"|"+"|"-"|"*"|"/"|"!" { return OPERATOR; }
+  "=="|"!="|">="|"<="|"&&"|"||"|"="|">"|"<"|"!" { return LOGIC_OPERATOR; }
+  "+"|"-"|"*"|"/"                       { return OPERATOR; }
   "{"                                   { return LBRACE; }
   "}"                                   { return RBRACE; }
   "["                                   { return LBRACKET; }
@@ -67,6 +89,63 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
   ","                                   { return COMMA; }
   {IDENT}                                { return IDENTIFIER; }
   .                                      { return BAD_CHARACTER; }
+}
+
+<IN_TOOL_STRING> {
+  [^\"\\{]+                            { return STRING; }
+  \\\r?\n                               { return STRING_ESCAPE; }
+  \\([\"\\nrtbf]|u[0-9A-Fa-f]{4})      { return STRING_ESCAPE; }
+  "{"\$?{IDENT}"}"                     { return INTERPOLATION; }
+  \"                                    { yybegin(TOOL_LIST_VALUE); return STRING; }
+  "{"                                   { return STRING; }
+  \\.                                   { return STRING_ESCAPE; }
+}
+
+<AFTER_REQUIRES> {
+  [ \t]+                                 { return TokenType.WHITE_SPACE; }
+  "tools"                               { yybegin(EXPECT_TOOLS_COLON); return KEYWORD; }
+  \r?\n                                  { yybegin(YYINITIAL); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
+<EXPECT_TOOLS_COLON> {
+  [ \t]+                                 { return TokenType.WHITE_SPACE; }
+  ":"                                    { yybegin(TOOL_LIST_LINE_START); return COLON; }
+  \r?\n                                  { yybegin(YYINITIAL); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
+<TOOL_LIST_LINE_START> {
+  \r?\n                                  { return TokenType.WHITE_SPACE; }
+  [ \t]+                                 {
+                                           if (yylength() > toolListParentIndent) {
+                                             yybegin(TOOL_LIST_ENTRY);
+                                             return TokenType.WHITE_SPACE;
+                                           }
+                                           yybegin(YYINITIAL);
+                                           yypushback(yylength());
+                                         }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
+<TOOL_LIST_ENTRY> {
+  [ \t]+                                 { return TokenType.WHITE_SPACE; }
+  "#"[^\r\n]*                           { yybegin(TOOL_LIST_LINE_START); return LINE_COMMENT; }
+  {IDENT}                                { yybegin(TOOL_LIST_VALUE); return CONSTANT; }
+  \"                                    { yybegin(IN_TOOL_STRING); return STRING; }
+  \r?\n                                  { yybegin(TOOL_LIST_LINE_START); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
+<TOOL_LIST_VALUE> {
+  [ \t]+                                 { return TokenType.WHITE_SPACE; }
+  "#"[^\r\n]*                           { return LINE_COMMENT; }
+  \"                                    { yybegin(IN_TOOL_STRING); return STRING; }
+  "=="|"!="|">="|"<="|"="|">"|"<"   { return LOGIC_OPERATOR; }
+  "provision"                            { return CONSTANT; }
+  {NUMBER}                               { return NUMBER; }
+  \r?\n                                  { yybegin(TOOL_LIST_LINE_START); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
 }
 
 <DEPENDENCY_LIST> {
