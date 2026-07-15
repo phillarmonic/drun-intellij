@@ -59,7 +59,7 @@ Found a problem with the plugin? [Open an issue](https://github.com/phillarmonic
 
 ## Development
 
-The build uses Java 21. The repository includes `.java-version` for version managers; verify `java --version` reports 21 before running Gradle. On macOS with Homebrew OpenJDK, use `brew install openjdk@21` and set `JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"`. Gradle downloads the target IntelliJ Platform and can provision its compilation toolchain automatically, but Gradle itself should also run on Java 21:
+Gradle runs on Java 26, while the plugin is compiled for Java 21 through the configured toolchain. The repository includes `.java-version` for version managers; verify `java --version` reports 26 before running Gradle. Gradle downloads the target IntelliJ Platform and can provision the Java 21 compilation toolchain automatically:
 
 ```bash
 ./gradlew test

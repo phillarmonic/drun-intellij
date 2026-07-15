@@ -16,8 +16,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "26"
-          cache: gradle
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Render release notes
         run: |
           release_version="${GITHUB_REF_NAME#v}"
