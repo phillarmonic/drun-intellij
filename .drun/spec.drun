@@ -2,7 +2,7 @@ version: 2.0
 /*
 * Doing the dogfooding: running drun things in drun
 */
-project "drun-intellij" version "1.0.1":
+project "drun-intellij" version "1.2.0":
     requires tools:
         git
         java >= "21"
@@ -82,13 +82,6 @@ task "prepare-release" means "Prepare and verify a developer-selected release ve
     success "Release {$release_version} is prepared; run xdrun package after tagging the release commit"
 
 task "package" means "Create the production plugin distribution":
-    requires $version as string matching semver_optional_v
-
-    set $release_version to "{$version without prefix 'v'}"
-    step "Checking release version {$release_version}"
-    check property "pluginVersion" in "gradle.properties" equals "{$release_version}"
-    check project version equals "{$release_version}"
-
     step "Packaging the plugin"
     call task build
     success "Plugin distribution written to build/distributions"
