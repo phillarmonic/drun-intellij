@@ -103,8 +103,9 @@ task "default":
         val tokens = lex("""accepts ${'$'}items as list
 given ${'$'}name as string
 given ${'$'}config as json
+requires ${'$'}version as string matching semver_optional_v
 """)
-        listOf("list", "string", "json").forEach {
+        listOf("list", "string", "json", "semver_optional_v").forEach {
             assertHas(tokens, DrunTokenTypes.TYPE, it)
         }
     }
