@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added syntax highlighting support for drun v2.25.0, including inherited `requires tools` task sources and protected branch policy keys.
+
 ### Changed
 
 ### Deprecated
