@@ -17,6 +17,7 @@ import static com.phillarmonic.drun.lexer.DrunTokenTypes.*;
 
 %{
   private int toolListParentIndent;
+  private int toolTaskSourceIndent;
   private int[] interpolationReturnStates = new int[8];
   private int interpolationDepth;
 
@@ -57,6 +58,8 @@ import static com.phillarmonic.drun.lexer.DrunTokenTypes.*;
 %state TOOL_LIST_LINE_START
 %state TOOL_LIST_ENTRY
 %state TOOL_LIST_VALUE
+%state EXPECT_TASKS_COLON
+%state TOOL_TASK_SOURCE_LINE_START
 %state IN_TOOL_STRING
 
 WHITE_SPACE=[ \t\f\r\n]+
@@ -73,7 +76,7 @@ ACTION="info"|"step"|"warn"|"warning"|"error"|"success"|"fail"|"echo"|"run"|"exe
 FILE_VALUE_ACTION="get"|"check"|"update"
 FILE_VALUE_FORMAT="property"|"json"|"yaml"|"toml"|"match"
 FILE_VALUE_COMPARISON="equals"|"differs"
-DOMAIN="drun"|"drunhub"|"setup"|"teardown"|"docker"|"image"|"container"|"compose"|"replicas"|"rollout"|"pods"|"pod"|"ingress"|"manifest"|"manifests"|"namespace"|"port"|"registry"|"git"|"github"|"gitlab"|"generic"|"cli"|"filesystem"|"latest"|"tags"|"series"|"formats"|"metadata"|"authentication"|"ambient"|"refs"|"date"|"default"|"branch"|"checkout"|"repository"|"remote"|"changes"|"message"|"files"|"get"|"post"|"put"|"patch"|"head"|"options"|"request"|"response"|"body"|"headers"|"header"|"endpoint"|"api"|"data"|"timeout"|"retry"|"follow"|"redirects"|"verify"|"ssl"|"auth"|"bearer"|"basic"|"token"|"user"|"password"|"content"|"type"|"accept"|"health"|"healthy"|"service"|"services"|"provision"|"ready"|"host"|"connection"|"strategy"|"sequential"|"dependency-based"|"circuit"|"breaker"|"failure"|"threshold"|"recovery"|"interval"|"retries"|"networks"|"external"|"required"|"autoprovision"|"driver"|"condition"|"dns"|"tcp"|"domain"|"record"|"expected"|"ip"|"ips"|"command"|"working"|"workdir"|"missing"|"force"|"recreate"|"deps"|"never"|"always"|"makefile"|"target"|"args"|"pre"|"jobs"|"verbose"|"allocate_tty"|"ssh"|"key"|"fallback"|"delay"|"path"|"startup"|"shutdown"|"discovery"|"metrics"|"enabled"|"labels"|"unavailable"|"max"|"min"|"consul"|"etcd"|"server"|"domains"|"ttl"|"cache"|"memory"|"cpu"|"limit"|"policy"|"orphans"|"period"|"env_file"|"installed"|"tool"|"framework"|"environment"|"node"|"npm"|"yarn"|"pnpm"|"bun"|"python"|"pip"|"go"|"golang"|"cargo"|"java"|"maven"|"gradle"|"ruby"|"gem"|"php"|"composer"|"rust"|"make"|"kubectl"|"helm"|"terraform"|"aws"|"gcp"|"azure"|"ci"|"local"|"production"|"staging"|"development"|"react"|"vue"|"angular"|"django"|"rails"|"express"|"spring"|"laravel"|"line"|"match"|"pattern"|"email"|"format"|"concat"|"split"|"replace"|"secret"|"trim"|"uppercase"|"lowercase"|"prepend"|"join"|"slice"|"length"|"keys"|"values"|"transform"|"subtract"|"multiply"|"divide"|"modulo"|"property"|"filtered"|"sorted"|"reversed"|"unique"|"first"|"last"|"basename"|"dirname"|"extension"|"prefix"|"suffix"|"allow"|"permissions"|"dir"|"file"|"folder"|"any"|"current"|"all"|"locally"|"attached"
+DOMAIN="drun"|"drunhub"|"setup"|"teardown"|"docker"|"image"|"container"|"compose"|"replicas"|"rollout"|"pods"|"pod"|"ingress"|"manifest"|"manifests"|"namespace"|"port"|"registry"|"git"|"github"|"gitlab"|"generic"|"cli"|"filesystem"|"latest"|"tags"|"series"|"formats"|"metadata"|"authentication"|"ambient"|"refs"|"date"|"default"|"protected"|"branch"|"branches"|"checkout"|"repository"|"remote"|"changes"|"message"|"files"|"get"|"post"|"put"|"patch"|"head"|"options"|"request"|"response"|"body"|"headers"|"header"|"endpoint"|"api"|"data"|"timeout"|"retry"|"follow"|"redirects"|"verify"|"ssl"|"auth"|"bearer"|"basic"|"token"|"user"|"password"|"content"|"type"|"accept"|"health"|"healthy"|"service"|"services"|"provision"|"ready"|"host"|"connection"|"strategy"|"sequential"|"dependency-based"|"circuit"|"breaker"|"failure"|"threshold"|"recovery"|"interval"|"retries"|"networks"|"external"|"required"|"autoprovision"|"driver"|"condition"|"dns"|"tcp"|"domain"|"record"|"expected"|"ip"|"ips"|"command"|"working"|"workdir"|"missing"|"force"|"recreate"|"deps"|"never"|"always"|"makefile"|"target"|"args"|"pre"|"jobs"|"verbose"|"allocate_tty"|"ssh"|"key"|"fallback"|"delay"|"path"|"startup"|"shutdown"|"discovery"|"metrics"|"enabled"|"labels"|"unavailable"|"max"|"min"|"consul"|"etcd"|"server"|"domains"|"ttl"|"cache"|"memory"|"cpu"|"limit"|"policy"|"orphans"|"period"|"env_file"|"installed"|"tool"|"framework"|"environment"|"node"|"npm"|"yarn"|"pnpm"|"bun"|"python"|"pip"|"go"|"golang"|"cargo"|"java"|"maven"|"gradle"|"ruby"|"gem"|"php"|"composer"|"rust"|"make"|"kubectl"|"helm"|"terraform"|"aws"|"gcp"|"azure"|"ci"|"local"|"production"|"staging"|"development"|"react"|"vue"|"angular"|"django"|"rails"|"express"|"spring"|"laravel"|"line"|"match"|"pattern"|"email"|"format"|"concat"|"split"|"replace"|"secret"|"trim"|"uppercase"|"lowercase"|"prepend"|"join"|"slice"|"length"|"keys"|"values"|"transform"|"subtract"|"multiply"|"divide"|"modulo"|"property"|"filtered"|"sorted"|"reversed"|"unique"|"first"|"last"|"basename"|"dirname"|"extension"|"prefix"|"suffix"|"allow"|"permissions"|"dir"|"file"|"folder"|"any"|"current"|"all"|"locally"|"attached"
 TYPE="string"|"number"|"boolean"|"list"|"json"|"xml"|"http"|"https"|"docker"|"git"|"kubernetes"|"namespace"|"network"|"directory"|"file"|"service"|"container"|"image"|"repository"|"branch"|"url"|"email"|"uuid"
 MACRO="semver"|"semver_optional_v"|"semver_extended"|"docker_tag"
 INTERPOLATION_MACRO="concat"|"split"|"replace"|"trim"|"uppercase"|"lowercase"|"prepend"|"join"|"slice"|"length"|"keys"|"values"|"basename"|"dirname"|"extension"|"prefix"|"suffix"|"filtered"|"sorted"|"reversed"|"unique"|"first"|"last"
@@ -171,9 +174,39 @@ CONSTANT="true"|"false"|"empty"|"null"|"yes"|"no"|"linux"|"windows"|"mac"|"darwi
 <TOOL_LIST_ENTRY> {
   [ \t]+                                 { return TokenType.WHITE_SPACE; }
   "#"[^\r\n]*                           { yybegin(TOOL_LIST_LINE_START); return LINE_COMMENT; }
+  "from"                                 { toolTaskSourceIndent = indentationBeforeCurrentToken(); yybegin(EXPECT_TASKS_COLON); return KEYWORD; }
   {IDENT}                                { yybegin(TOOL_LIST_VALUE); return CONSTANT; }
   \"                                    { yybegin(IN_TOOL_STRING); return STRING; }
   \r?\n                                  { yybegin(TOOL_LIST_LINE_START); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
+<EXPECT_TASKS_COLON> {
+  [ \t]+                                 { return TokenType.WHITE_SPACE; }
+  "tasks"                                { return CONSTANT; }
+  ":"                                    { yybegin(TOOL_TASK_SOURCE_LINE_START); return COLON; }
+  \r?\n                                  { yybegin(TOOL_LIST_LINE_START); return TokenType.WHITE_SPACE; }
+  .                                      { yybegin(YYINITIAL); yypushback(1); }
+}
+
+<TOOL_TASK_SOURCE_LINE_START> {
+  \r?\n                                  { return TokenType.WHITE_SPACE; }
+  [ \t]+                                 {
+                                           if (yylength() > toolTaskSourceIndent) {
+                                             return TokenType.WHITE_SPACE;
+                                           }
+                                           if (yylength() > toolListParentIndent) {
+                                             yybegin(TOOL_LIST_ENTRY);
+                                             yypushback(yylength());
+                                             return TokenType.WHITE_SPACE;
+                                           }
+                                           yybegin(YYINITIAL);
+                                           yypushback(yylength());
+                                         }
+  "#"[^\r\n]*                           { return LINE_COMMENT; }
+  \"([^\"\\]|\\.)*\"                { return DEFINITION; }
+  {IDENT}                                { return DEFINITION; }
+  ","                                   { return COMMA; }
   .                                      { yybegin(YYINITIAL); yypushback(1); }
 }
 
