@@ -171,6 +171,30 @@ task "default":
         assertHas(tokens, DrunTokenTypes.ACTION, "info")
     }
 
+    @Test fun `highlights inherited required tool task refs`() {
+        val tokens = lex("""project "qol-syntax" version "1.0.0":
+  requires tools:
+    go >= "1.23"
+    from tasks:
+      build
+      "integration test"
+
+task "build":
+  requires tools:
+    from tasks:
+      "integration test"
+    golangci-lint >= "2.12"
+""")
+
+        assertEquals("requires tools inheritance must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
+        assertEquals(2, tokens.count { it.first == DrunTokenTypes.KEYWORD && it.second == "from" })
+        assertEquals(2, tokens.count { it.first == DrunTokenTypes.CONSTANT && it.second == "tasks" })
+        assertHas(tokens, DrunTokenTypes.DEFINITION, "build")
+        assertEquals(2, tokens.count { it.first == DrunTokenTypes.DEFINITION && it.second == "\"integration test\"" })
+        assertHas(tokens, DrunTokenTypes.CONSTANT, "golangci-lint")
+    }
+
     @Test fun `recognizes built in types in parameter declarations`() {
         val tokens = lex("""accepts ${'$'}items as list
 given ${'$'}name as string
@@ -224,12 +248,22 @@ echo 'Done'"
     }
 
     @Test fun `recognizes policies detection and orchestration`() {
-        val tokens = lex("git policy:\n  branch is attached\norchestration service is healthy")
+        val tokens = lex("""git policy:
+  branch is attached
+  branch:
+    default branches: "main", "release"
+    protected branches: "main", "release"
+orchestration service is healthy""")
+        assertEquals("git policy syntax must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
         listOf("git", "policy", "orchestration", "service").forEach { word ->
             assertTrue("missing $word", tokens.any { it.second == word })
         }
         assertHas(tokens, DrunTokenTypes.KEYWORD, "is")
-        listOf("attached", "healthy").forEach { word -> assertHas(tokens, DrunTokenTypes.CONSTANT, word) }
+        assertHas(tokens, DrunTokenTypes.TYPE, "branch")
+        listOf("default", "protected", "branches", "attached", "healthy").forEach { word ->
+            assertHas(tokens, DrunTokenTypes.CONSTANT, word)
+        }
     }
 
     @Test fun `highlights task metadata and workdir from project specs`() {
