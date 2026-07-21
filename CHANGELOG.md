@@ -8,8 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added syntax highlighting support for drun v2.25.0, including inherited `requires tools` task sources and protected branch policy keys.
-
 ### Changed
 
 ### Deprecated
@@ -19,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Security
+
+## [[1.3.0]] - 2026-07-21
+
+### Added
+
+- Added syntax highlighting support for drun v2.25.0, including inherited `requires tools` task sources and protected branch policy keys.
 
 ## [1.2.0] - 2026-07-15
 
@@ -35,5 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modified the extension local drun pipeline for extra goodies
 
-[Unreleased]: https://github.com/phillarmonic/drun-intellij/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/phillarmonic/drun-intellij/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/phillarmonic/drun-intellij/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/phillarmonic/drun-intellij/commits/v1.2.0
