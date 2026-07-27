@@ -1,0 +1,12 @@
+schema: 1
+
+catalogs:
+  graphify:
+    source: https://github.com/phillarmonic/repertoire-graphify-skills.git
+    ref: master
+
+skills:
+  graphify:
+    catalog: graphify
+    scope: global
+    targets: [codex, copilot]
