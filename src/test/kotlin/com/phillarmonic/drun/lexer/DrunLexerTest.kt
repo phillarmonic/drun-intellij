@@ -376,6 +376,22 @@ task "latest":
         assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}latest_version")
     }
 
+    @Test fun `highlights fixed duration wait statements`() {
+        val tokens = lex("""task "deploy":
+  wait 5 seconds
+  wait {${'$'}backoff} minutes
+  wait 1 hour
+""")
+        assertEquals("Wait syntax must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
+        assertHas(tokens, DrunTokenTypes.ACTION, "wait")
+        assertHas(tokens, DrunTokenTypes.NUMBER, "5")
+        assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}backoff")
+        listOf("seconds", "minutes", "hour").forEach {
+            assertHas(tokens, DrunTokenTypes.CONSTANT, it)
+        }
+    }
+
     private fun lex(text: String): List<Pair<IElementType, String>> {
         val lexer = DrunLexerAdapter()
         lexer.start(text)
