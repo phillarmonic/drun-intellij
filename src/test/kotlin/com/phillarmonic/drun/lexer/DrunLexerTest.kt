@@ -392,6 +392,18 @@ task "latest":
         }
     }
 
+    @Test fun `highlights changelog promotion statements`() {
+        val tokens = lex("""task "release":
+  promote changelog "CHANGELOG.md" to version "${'$'}release_version"
+  promote changelog "CHANGELOG.md" to version "1.5.0" on "2026-09-01"
+""")
+        assertEquals("Changelog syntax must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
+        assertHas(tokens, DrunTokenTypes.ACTION, "promote")
+        assertHas(tokens, DrunTokenTypes.CONSTANT, "changelog")
+        listOf("to", "version", "on").forEach { assertHas(tokens, DrunTokenTypes.KEYWORD, it) }
+    }
+
     private fun lex(text: String): List<Pair<IElementType, String>> {
         val lexer = DrunLexerAdapter()
         lexer.start(text)
