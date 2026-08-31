@@ -117,7 +117,12 @@ class DrunLspServerSupportProvider : LspIntegrationProvider {
                 ?.filter { it.isNotEmpty() }
                 ?.takeIf { it.isNotEmpty() }
                 ?: listOf(".COM", ".EXE", ".BAT", ".CMD")
-            return listOf(command) + extensions.map { ext -> command + (if (ext.startsWith('.')) ext else ".$ext") }
+            // Windows filesystems are case-insensitive, but tests may simulate
+            // Windows on a case-sensitive one, so probe both extension cases.
+            return listOf(command) + extensions.flatMap { ext ->
+                val suffix = if (ext.startsWith('.')) ext else ".$ext"
+                listOf(command + suffix, command + suffix.lowercase())
+            }.distinct()
         }
     }
 }
