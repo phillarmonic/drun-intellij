@@ -78,6 +78,7 @@ task "prepare-release" means "Prepare and verify a developer-selected release ve
 
     step "Promoting unreleased changelog entries to {$release_version}"
     run "./gradlew patchChangelog"
+    promote changelog "CHANGELOG.md" to version "{$release_version}"
 
     step "Running CI for release candidate {$version}"
     call task ci
