@@ -18,6 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.5.0] - 2026-09-01
+
+### Added
+Support for Drun 2.28
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+LSP: Properly load the LSP on Windows hosts.
+
+### Security
+
 ## [[1.4.0]] - 2026-08-10
 
 Support for Drun v2.27.x
@@ -43,7 +59,8 @@ Support for Drun v2.27.x
 
 - Modified the extension local drun pipeline for extra goodies
 
-[Unreleased]: https://github.com/phillarmonic/drun-intellij/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/phillarmonic/drun-intellij/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/phillarmonic/drun-intellij/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/phillarmonic/drun-intellij/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/phillarmonic/drun-intellij/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/phillarmonic/drun-intellij/commits/v1.2.0
