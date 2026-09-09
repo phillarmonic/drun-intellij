@@ -392,6 +392,24 @@ task "latest":
         }
     }
 
+    @Test fun `highlights confirm and prompt statements`() {
+        val tokens = lex("""task "deploy":
+  confirm "Deploy to production?"
+  confirm "Run database migrations?" as ${'$'}migrate
+  confirm "Delete the build cache?" defaults to "no" as ${'$'}clean
+  prompt "Which environment?" as ${'$'}environment
+  prompt "Release notes for {${'$'}target}?" defaults to "n/a" as ${'$'}notes
+""")
+        assertEquals("confirm/prompt syntax must not produce bad characters", emptyList<String>(),
+            tokens.filter { it.first == DrunTokenTypes.BAD_CHARACTER }.map { it.second })
+        listOf("confirm", "prompt").forEach { assertHas(tokens, DrunTokenTypes.ACTION, it) }
+        listOf("${'$'}migrate", "${'$'}clean", "${'$'}environment", "${'$'}notes").forEach {
+            assertHas(tokens, DrunTokenTypes.VARIABLE, it)
+        }
+        listOf("defaults", "to", "as").forEach { assertHas(tokens, DrunTokenTypes.KEYWORD, it) }
+        assertHas(tokens, DrunTokenTypes.VARIABLE, "${'$'}target")
+    }
+
     @Test fun `highlights changelog promotion statements`() {
         val tokens = lex("""task "release":
   promote changelog "CHANGELOG.md" to version "${'$'}release_version"
